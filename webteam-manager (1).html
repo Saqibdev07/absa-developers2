@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WebTeam Manager</title>
+<meta name="description" content="WebTeam referral and commission management">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d13;--bg-2:#0d1119;
+  --surface:#12161f;--surface-2:#191f2a;--surface-3:#1f2734;
+  --border:#252d3b;--border-soft:#1c2330;
+  --text:#e9edf5;--text-dim:#8892a6;--text-faint:#5b6478;
+  --accent:#7c5cfc;--accent-soft:#7c5cfc26;
+  --mint:#2fe6a6;--mint-soft:#2fe6a624;
+  --amber:#ffb454;--amber-soft:#ffb45424;
+  --coral:#ff6b6b;--coral-soft:#ff6b6b24;
+  --cyan:#3fd0ff;
+  --disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text);color-scheme:dark}
+button,input,select{font:inherit}button{cursor:pointer;border:0}
+.top{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 20px 60px #00000066}
+.auth{width:min(430px,100%);padding:32px}
+.brand{text-align:center;margin-bottom:25px}
+.brand h1{margin:0;font-family:var(--disp);font-size:29px;font-weight:700;letter-spacing:-.01em}
+.brand p{color:var(--text-dim);margin:8px 0 0;font-size:13px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--bg-2);padding:5px;border-radius:11px;margin-bottom:20px;border:1px solid var(--border-soft)}
+.tabs button{padding:11px;border-radius:8px;background:transparent;color:var(--text-dim);font-weight:600}
+.tabs .active{background:var(--surface-3);color:var(--text);box-shadow:0 0 0 1px var(--border) inset}
+.field{margin:13px 0}
+.field label{display:block;font-size:12px;font-weight:700;margin-bottom:7px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:9px;outline:0;background:var(--bg-2);color:var(--text)}
+.field select option{background:var(--bg-2);color:var(--text)}
+.field input::placeholder{color:var(--text-faint)}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.btn{width:100%;padding:13px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;margin-top:8px;font-size:14px}
+.btn.secondary{background:var(--surface-3);color:var(--text);border:1px solid var(--border)}
+.btn.danger{background:var(--coral-soft);color:var(--coral);border:1px solid #ff6b6b3d}
+.small{font-size:12px;color:var(--text-faint);margin-top:10px;line-height:1.55}
+.hidden{display:none!important}
+.app{min-height:100vh;background:var(--bg)}
+.nav{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:5}
+.nav b{font-family:var(--disp);font-size:18px;font-weight:600;letter-spacing:-.01em}
+.nav-right{display:flex;gap:10px;align-items:center}
+.pill{background:var(--mint-soft);color:var(--mint);border-radius:7px;padding:6px 10px;font-size:11px;font-weight:700;font-family:var(--mono);letter-spacing:.03em}
+.layout{display:grid;grid-template-columns:222px 1fr;min-height:calc(100vh - 64px)}
+.side{background:var(--surface);border-right:1px solid var(--border);padding:16px 10px}
+.side button{width:100%;text-align:left;background:transparent;padding:11px 12px;border-radius:9px;margin-bottom:3px;color:var(--text-dim);font-weight:600;font-size:14px;border-left:2px solid transparent}
+.side button:hover{background:var(--surface-2);color:var(--text)}
+.side button.active{background:var(--accent-soft);color:#b9a8ff;border-left:2px solid var(--accent)}
+.main{padding:26px;max-width:1250px;width:100%;margin:auto}
+.main h1{font-family:var(--disp);font-weight:600;letter-spacing:-.01em}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{padding:18px;border-left:3px solid var(--border)}
+.stat span{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.stat strong{display:block;font-family:var(--mono);font-size:25px;margin-top:8px;font-weight:600;letter-spacing:-.01em}
+.content{margin-top:18px}
+.panel{padding:20px}
+.panel h2,.panel h3{margin-top:0;font-family:var(--disp);font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.ref{background:linear-gradient(135deg,#241a4a,#150f30 60%);border:1px solid #382a70;color:#fff;padding:22px;border-radius:14px}
+.ref h3{font-family:var(--disp)}
+.ref code{display:block;background:#00000040;padding:11px;border-radius:8px;margin:10px 0;overflow:auto;font-family:var(--mono);font-size:12.5px;color:#c9bfff;border:1px solid #ffffff14}
+.ref button{background:var(--mint);color:#06251b;padding:10px 14px;border-radius:8px;font-weight:700}
+.table-wrap{overflow:auto}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{text-align:left;padding:11px;border-bottom:1px solid var(--border-soft);font-size:13px;white-space:nowrap}
+.table th{color:var(--text-faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.table td{color:var(--text)}
+.badge{display:inline-block;padding:5px 9px;border-radius:6px;font-size:10.5px;font-weight:700;background:var(--surface-3);color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.03em}
+.badge.green{background:var(--mint-soft);color:var(--mint)}
+.badge.orange{background:var(--amber-soft);color:var(--amber)}
+.badge.red{background:var(--coral-soft);color:var(--coral)}
+.chat{height:470px;display:flex;flex-direction:column}
+.messages{flex:1;overflow:auto;background:var(--bg-2);border-radius:12px;padding:15px;border:1px solid var(--border-soft)}
+.msg{max-width:82%;padding:10px 12px;border-radius:11px;margin:7px 0;font-size:13px;line-height:1.5}
+.bot{background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+.me{background:var(--accent);color:#fff;margin-left:auto}
+.chatbar{display:flex;gap:8px;margin-top:10px}
+.chatbar input{flex:1;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--bg-2);color:var(--text)}
+.chatbar button{padding:0 18px;border-radius:9px;background:var(--accent);color:#fff;font-weight:700}
+.modal{position:fixed;inset:0;background:#000000a6;display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal .card{width:min(500px,100%);padding:24px}
+.toast{position:fixed;right:18px;bottom:18px;background:var(--surface-3);border:1px solid var(--border);color:var(--text);padding:12px 15px;border-radius:10px;display:none;z-index:30;font-size:13px}
+.demo-ticker{position:relative;height:34px;overflow:hidden;background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;align-items:center}
+.demo-ticker-text{width:100%;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--mint);letter-spacing:.02em;animation:fadeIn .4s ease}
+.demo-dot{position:absolute;top:8px;right:12px;width:9px;height:9px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px var(--mint-soft);cursor:default}
+.demo-dot:hover::after{content:"Demo";position:absolute;top:16px;right:-2px;background:var(--surface-3);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:6px;font-size:10.5px;font-weight:700;white-space:nowrap;font-family:var(--mono)}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.video-card{background:var(--surface-2);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.video-embed{position:relative;width:100%;padding-top:56.25%;background:#000}
+.video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-info{padding:12px 14px}
+.video-info h4{margin:0 0 6px;font-family:var(--disp);font-size:15px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--border)}.side button{min-width:max-content}.grid{grid-template-columns:1fr 1fr}.two,.three{grid-template-columns:1fr}.main{padding:15px}.nav{padding:0 14px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.auth{padding:22px}}
+
+/* ---- decorations & animations ---- */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes floatBlob{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-25px) scale(1.08)}}
+@keyframes popIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes pulseSoft{0%,100%{box-shadow:0 0 0 0 #7c5cfc4a}50%{box-shadow:0 0 0 8px #7c5cfc00}}
+@keyframes driftDots{0%{background-position:0 0,0 0}100%{background-position:120px 80px,-80px 60px}}
+
+/* signature: referral-network node field behind the auth card */
+.top{position:relative;overflow:hidden;background:
+  radial-gradient(circle at 18% 22%,#7c5cfc22,transparent 40%),
+  radial-gradient(circle at 82% 78%,#2fe6a61c,transparent 42%),
+  var(--bg)}
+.top::before{content:"";position:absolute;inset:-10%;z-index:0;opacity:.55;
+  background-image:
+    radial-gradient(#7c5cfc55 1.4px,transparent 1.6px),
+    radial-gradient(#2fe6a640 1.4px,transparent 1.6px);
+  background-size:46px 46px,46px 46px;
+  background-position:0 0,23px 23px;
+  animation:driftDots 14s linear infinite;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 60%,transparent 100%)}
+.top::after{content:"";position:absolute;width:360px;height:360px;border-radius:50%;filter:blur(80px);opacity:.3;z-index:0;background:var(--accent);top:-110px;right:-110px;animation:floatBlob 10s ease-in-out infinite}
+.auth{position:relative;z-index:1;animation:popIn .45s cubic-bezier(.2,.8,.3,1) both}
+.brand h1{background:linear-gradient(90deg,#7c5cfc,#3fd0ff,#7c5cfc);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 5s linear infinite}
+
+.nav{animation:fadeIn .4s ease both}
+.side button{transition:background .18s ease,color .18s ease,transform .12s ease}
+.side button:hover{transform:translateX(2px)}
+.card{transition:box-shadow .25s ease,transform .2s ease}
+.stat,.panel{animation:fadeInUp .45s ease both}
+.stat{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.stat:hover{transform:translateY(-4px);box-shadow:0 14px 30px #00000055;border-color:var(--accent)}
+.grid .stat:nth-child(1){animation-delay:.03s}.grid .stat:nth-child(2){animation-delay:.08s}.grid .stat:nth-child(3){animation-delay:.13s}.grid .stat:nth-child(4){animation-delay:.18s}
+.content{animation:fadeInUp .4s ease both}
+.btn{transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 8px 20px #7c5cfc4d}
+.btn.secondary:hover{border-color:var(--accent);color:#b9a8ff}
+.btn.danger:hover{box-shadow:0 8px 18px #ff6b6b33}
+.tabs button{transition:all .2s ease}
+.pill{transition:background .2s ease,color .2s ease}
+.pill-view{background:var(--amber-soft);color:var(--amber);animation:pulseSoft 2.4s ease-in-out infinite}
+.ref{position:relative;overflow:hidden;animation:fadeInUp .45s ease both}
+.ref::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,#ffffff10,transparent);background-size:200% 100%;animation:shimmer 3.2s linear infinite}
+.table tr{transition:background .15s ease}
+.table tbody tr:hover,.table tr:hover{background:var(--surface-2)}
+.badge{transition:transform .15s ease}
+.modal{animation:fadeIn .2s ease both}
+.modal .card{animation:popIn .28s cubic-bezier(.2,.8,.3,1) both}
+.msg{animation:popIn .22s ease both}
+.toast{animation:popIn .22s ease both}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:9px}::-webkit-scrollbar-thumb:hover{background:var(--border)}
+
+/* ---- money rain animation ---- */
+.money-rain{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.money-rain .coin{position:absolute;top:-40px;animation-name:coinFall;animation-timing-function:cubic-bezier(.4,.2,.6,1);animation-fill-mode:forwards;filter:drop-shadow(0 2px 4px #00000055)}
+@keyframes coinFall{0%{transform:translateY(-40px) rotate(0deg);opacity:1}80%{opacity:1}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
+
+/* ---- welcome popup ---- */
+.welcome-modal{z-index:80;animation:fadeIn .25s ease both}
+.welcome-card{position:relative;overflow:hidden;padding:36px 30px;text-align:center;background:linear-gradient(160deg,var(--surface),var(--bg-2));border:1px solid var(--border)}
+.confetti-wrap{position:absolute;inset:0;pointer-events:none}
+.confetti{position:absolute;top:-20px;width:8px;height:14px;opacity:.95;border-radius:2px;animation:confettiFall 2.8s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(440px) rotate(560deg);opacity:0}}
+.welcome-emoji{font-size:56px;animation:popIn .5s cubic-bezier(.2,.8,.3,1) both}
+.welcome-card h2{font-family:var(--disp);background:linear-gradient(90deg,#7c5cfc,#3fd0ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:25px;margin:10px 0 6px}
+
+/* ---- extra color accents ---- */
+.grid .stat:nth-child(1){border-left:3px solid var(--accent)}
+.grid .stat:nth-child(2){border-left:3px solid var(--cyan)}
+.grid .stat:nth-child(3){border-left:3px solid var(--mint)}
+.grid .stat:nth-child(4){border-left:3px solid var(--amber)}
+.badge.green{color:var(--mint)}
+.badge.orange{color:var(--amber)}
+.badge.red{color:var(--coral)}
+.pill{background:var(--mint-soft)}
+.nav{background:var(--surface)}
+#memberApp .side button.active,#adminApp .side button.active{background:var(--accent-soft);color:#b9a8ff;box-shadow:inset 2px 0 0 var(--accent)}
+.ref{background:linear-gradient(135deg,#241a4a,#0e1a33 60%,#0c2a26)}
+
+/* ---- notifications ---- */
+.notif-wrap{position:relative}
+.icon-btn{position:relative;background:var(--surface-3);color:var(--text);width:38px;height:38px;border-radius:10px;font-size:17px;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,background .15s ease;border:1px solid var(--border)}
+.icon-btn:hover{transform:translateY(-2px) rotate(-6deg);border-color:var(--accent)}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--coral);color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px;animation:pulseSoft 1.6s ease-in-out infinite;box-shadow:0 2px 6px #ff6b6b55}
+.notif-panel{position:absolute;top:50px;right:0;width:300px;max-height:380px;overflow:auto;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;box-shadow:0 16px 40px #00000066;padding:8px;z-index:40;animation:popIn .2s ease both}
+.notif-item{padding:10px 12px;border-radius:9px;font-size:13px;border-bottom:1px solid var(--border-soft);transition:background .15s ease;color:var(--text)}
+.notif-item:last-child{border-bottom:0}
+.notif-item:hover{background:var(--surface-3)}
+.notif-time{font-size:11px;color:var(--text-faint);margin-top:3px;font-family:var(--mono)}
+.notif-empty{padding:16px;text-align:center;color:var(--text-faint);font-size:13px}
+
+/* ---- clickable names & avatars ---- */
+.name-row{display:flex;align-items:center;gap:9px;cursor:pointer}
+.avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0}
+.link-name{color:var(--text);font-weight:600;transition:color .15s ease}
+.name-row:hover .link-name{color:#b9a8ff;text-decoration:underline}
+
+/* ---- login update popup extra colors ---- */
+.welcome-card ul{list-style:none;padding:0;margin:0 0 6px}
+.welcome-card li{padding:8px 10px;border-radius:9px;background:var(--surface-3);margin-bottom:6px;font-size:13px;text-align:left;color:var(--text)}
+.hero-headline{text-align:center;max-width:520px;margin:0 auto 20px;font-family:var(--disp);font-weight:700;font-size:26px;line-height:1.25;letter-spacing:-.01em;background:linear-gradient(90deg,#7c5cfc,#3fd0ff,#7c5cfc);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 5s linear infinite}
+@media(max-width:520px){.hero-headline{font-size:20px}}
+</style>
+</head>
+<body>
+
+<div id="auth" class="top">
+  <div style="width:min(430px,100%)">
+    <h1 class="hero-headline">Start Earning at Home Without Investment</h1>
+    <div class="card auth">
+    <div class="brand"><h1>🌐 WebTeam</h1><p>Professional Website Development Team</p></div>
+    <div class="tabs">
+      <button id="memberTab" class="active" onclick="showAuth('member')">👤 Member</button>
+      <button id="adminTab" onclick="showAuth('admin')">👑 Admin</button>
+    </div>
+
+    <div id="memberAuth">
+      <div id="loginBox">
+        <div class="field"><label>Email or WhatsApp</label><input id="loginId" placeholder="example@email.com"></div>
+        <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="••••••••"></div>
+        <button class="btn" onclick="loginMember()">Login</button>
+        <button class="btn secondary" onclick="toggleRegister()">Create Member Account</button>
+      </div>
+
+      <div id="registerBox" class="hidden">
+        <div class="field"><label>Full Name</label><input id="regName" placeholder="Your name"></div>
+        <div class="field"><label>Email</label><input id="regEmail" type="email" placeholder="you@example.com"></div>
+        <div class="field"><label>WhatsApp Number</label><input id="regPhone" placeholder="03xxxxxxxxx"></div>
+        <div class="field"><label>Password</label><input id="regPass" type="password" placeholder="Create password"></div>
+        <div class="field"><label>Referral Code (optional)</label><input id="regRef" placeholder="e.g. AHM123"></div>
+        <button class="btn" onclick="registerMember()">Create Account</button>
+        <button class="btn secondary" onclick="toggleRegister()">Back to Login</button>
+      </div>
+    </div>
+
+    <div id="adminAuth" class="hidden">
+      <div class="field"><label>Admin Code</label><input id="adminCode" type="password" placeholder="Enter private admin code"></div>
+      <button class="btn" onclick="loginAdmin()">Open Admin Panel</button>
+      <p class="small">For a public production website, the admin code must be checked on a secure server. This single-file version stores demo data in this browser only.</p>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div id="memberApp" class="app hidden">
+  <div class="demo-ticker"><span id="demoTickerText" class="demo-ticker-text"></span><span class="demo-dot"></span></div>
+  <div class="nav"><b>🌐 WebTeam</b><div class="nav-right"><span id="memberNamePill" class="pill"></span><button class="btn danger" style="width:auto;margin:0;padding:8px 12px" onclick="logout()">Logout</button></div></div>
+  <div class="layout">
+    <aside class="side">
+      <button class="active" data-page="home" onclick="memberPage('home',this)">🏠 Dashboard</button>
+      <button data-page="clients" onclick="memberPage('clients',this)">👤 My Clients</button>
+      <button data-page="earnings" onclick="memberPage('earnings',this)">💰 My Earnings</button>
+      <button data-page="referrals" onclick="memberPage('referrals',this)">👥 My Referrals</button>
+      <button data-page="bot" onclick="memberPage('bot',this)">🤖 My Bot</button>
+    </aside>
+    <main id="memberMain" class="main"></main>
+  </div>
+</div>
+
+<div id="adminApp" class="app hidden">
+  <div class="nav"><b>👑 WebTeam Admin</b><div class="nav-right"><div class="notif-wrap"><button id="notifBtn" class="icon-btn" onclick="toggleNotifPanel()">🔔<span id="notifBadge" class="notif-badge hidden">0</span></button><div id="notifPanel" class="notif-panel hidden"></div></div><span id="adminPill" class="pill">ADMIN</span><button class="btn danger" style="width:auto;margin:0;padding:8px 12px" onclick="logout()">Logout</button></div></div>
+  <div class="layout">
+    <aside class="side">
+      <button class="active" data-page="home" onclick="adminPage('home',this)">🏠 Dashboard</button>
+      <button data-page="members" onclick="adminPage('members',this)">👥 Members</button>
+      <button data-page="clients" onclick="adminPage('clients',this)">👤 Clients</button>
+      <button data-page="payments" onclick="adminPage('payments',this)">💳 Payments</button>
+      <button data-page="commissions" onclick="adminPage('commissions',this)">💰 Commissions</button>
+      <button data-page="videos" onclick="adminPage('videos',this)">🎥 Guide Videos</button>
+      <button id="adminBotBtn" data-page="bot" onclick="adminPage('bot',this)">🤖 Admin Bot</button>
+    </aside>
+    <main id="adminMain" class="main"></main>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden"><div class="card" id="modalBody"></div></div>
+<div id="toast" class="toast"></div>
+
+<!-- Firebase (online database + realtime sync across all devices) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+const ADMIN_CODE = "Rana9053$"; // DEMO ONLY. Do not use a client-side secret in production.
+const VIEWER_CODE = "1947"; // read-only admin, no editing, no bot
+
+// ====== FIREBASE SETUP ======
+// 1. Go to https://console.firebase.google.com -> Create project (free plan is fine).
+// 2. In the project, click "Build" -> "Firestore Database" -> Create database (start in test mode for now).
+// 3. Click the gear icon -> Project settings -> scroll to "Your apps" -> click the </> (web) icon -> register app.
+// 4. Copy the firebaseConfig object it gives you and paste it below, replacing the placeholder values.
+const firebaseConfig = {
+  apiKey: "AIzaSyD1OYfIUxgHPsdNcy7UwJn-sNMA-EnMnCA",
+  authDomain: "absa-developers.firebaseapp.com",
+  projectId: "absa-developers",
+  storageBucket: "absa-developers.firebasestorage.app",
+  messagingSenderId: "559575822664",
+  appId: "1:559575822664:web:8b845785b2a0eed000437d",
+  measurementId: "G-WWQPLGHGCE"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+// All app data lives in ONE Firestore document so the existing app logic below barely changes.
+// This is fine for a small/medium team; if the team grows very large, split into per-record collections later.
+const DOC_REF = db.collection("webteam").doc("data");
+
+let state = {members:[],clients:[],payments:[],commissions:[],videos:[]};
+let current = null, role = null;
+let dataLoaded = false; // true once the first snapshot has arrived from Firebase
+
+function save(){
+  DOC_REF.set(state).catch(err=>{console.error("Firebase save error:",err);toast("⚠️ Online save failed — check internet/Firebase setup");});
+}
+
+// Keeps this device's screen and local `current` pointer in sync after remote changes
+let currentMemberPage="home", currentAdminPage="home";
+function refreshCurrentView(){
+  if(role==="member"){
+    const updated=state.members.find(m=>m.id===current.id);
+    if(!updated){toast("Aapka account remove ho gaya hai.");return logout();}
+    current=updated;
+    memberPage(currentMemberPage, document.querySelector(`#memberApp .side button[data-page="${currentMemberPage}"]`));
+  }else if(role==="admin"||role==="viewer"){
+    adminPage(currentAdminPage, document.querySelector(`#adminApp .side button[data-page="${currentAdminPage}"]`));
+  }
+  renderNotifBadge();
+}
+
+function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem("webteam_session")||"null");
+    if(!s)return;
+    if(s.role==="member"){
+      const m=state.members.find(x=>x.id===s.id);
+      if(m){current=m;role="member";openMember();}
+    }else if(s.role==="admin"){
+      role="admin";current={name:"Administrator"};openAdmin();
+    }else if(s.role==="viewer"){
+      role="viewer";current={name:"Viewer"};openAdmin();
+    }
+  }catch(e){}
+}
+
+// Realtime listener: fires immediately with current data, then again every time ANY
+// device (any member registering, admin editing, etc.) changes the data.
+DOC_REF.onSnapshot(function(doc){
+  const data = doc.exists ? doc.data() : {members:[],clients:[],payments:[],commissions:[],videos:[]};
+  state.members = data.members||[];
+  state.clients = data.clients||[];
+  state.payments = data.payments||[];
+  state.commissions = data.commissions||[];
+  state.videos = data.videos||[];
+  if(!dataLoaded){
+    dataLoaded=true;
+    restoreSession();
+  }else{
+    refreshCurrentView();
+  }
+},function(err){
+  console.error("Firebase sync error:",err);
+  toast("⚠️ Online data se connect nahi ho saka — Firebase config/rules check karein");
+});
+function id(prefix){return prefix+"-"+Math.random().toString(36).slice(2,8).toUpperCase()}
+function money(n){return "Rs. "+Number(n||0).toLocaleString("en-PK")}
+function toast(t){let x=document.getElementById("toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",2200)}
+function playMoneyRain(){
+  const layer=document.createElement("div");layer.className="money-rain";document.body.appendChild(layer);
+  const symbols=["💰","💵","🪙","₨"];
+  for(let i=0;i<20;i++){
+    const s=document.createElement("span");s.className="coin";s.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+    s.style.left=Math.random()*100+"vw";s.style.animationDuration=(1.5+Math.random()*1.3)+"s";s.style.animationDelay=(Math.random()*.5)+"s";s.style.fontSize=(18+Math.random()*20)+"px";
+    layer.appendChild(s);
+  }
+  setTimeout(()=>layer.remove(),3200);
+}
+function showWelcome(name){
+  const ov=document.createElement("div");ov.className="modal welcome-modal";
+  const colors=["#3157d5","#6b4ee8","#21c37a","#ffb020","#ff5c7c","#00b4d8"];
+  ov.innerHTML=`<div class="card welcome-card"><div class="confetti-wrap">${Array.from({length:16}).map(()=>`<span class="confetti" style="left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${(Math.random()*.6).toFixed(2)}s"></span>`).join("")}</div><div style="position:relative;z-index:1"><div class="welcome-emoji">🎉</div><h2>Welcome, ${esc(name)}!</h2><p class="small" style="margin-bottom:20px">Aapka WebTeam account ban gaya hai. Ab clients add kar ke apni earning shuru karein 🚀</p><button class="btn" onclick="this.closest('.welcome-modal').remove()">Let's Go</button></div></div>`;
+  document.body.appendChild(ov);playMoneyRain();
+  setTimeout(()=>{if(ov.parentNode)ov.remove()},6000);
+}
+function saveSession(){if(role==="member")localStorage.setItem("webteam_session",JSON.stringify({role,id:current.id}));else if(role==="admin"||role==="viewer")localStorage.setItem("webteam_session",JSON.stringify({role}))}
+function clearSession(){localStorage.removeItem("webteam_session")}
+const AVATAR_COLORS=["#3157d5","#6b4ee8","#21c37a","#ff8a3d","#ff5c7c","#00b4d8","#a86600"];
+function avatarColor(str){let h=0;for(let i=0;i<str.length;i++)h=str.charCodeAt(i)+((h<<5)-h);return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]}
+function computeNotifications(){
+  const events=[];
+  state.members.forEach(m=>events.push({time:m.created,text:`👤 Naya member aya: <b>${esc(m.name)}</b>`}));
+  state.clients.forEach(c=>events.push({time:c.created,text:`🧾 Naya client aya: <b>${esc(c.name)}</b>`}));
+  events.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  return events.slice(0,25);
+}
+function unreadCount(){const readAt=localStorage.getItem("webteam_notif_read")||"1970-01-01";return computeNotifications().filter(e=>new Date(e.time)>new Date(readAt)).length}
+function renderNotifBadge(){const badge=document.getElementById("notifBadge");if(!badge)return;const c=unreadCount();if(c>0){badge.textContent=c>9?"9+":c;badge.classList.remove("hidden")}else badge.classList.add("hidden")}
+function toggleNotifPanel(){
+  const panel=document.getElementById("notifPanel");if(!panel)return;
+  const willOpen=panel.classList.contains("hidden");
+  document.querySelectorAll(".notif-panel").forEach(p=>p.classList.add("hidden"));
+  if(willOpen){
+    panel.classList.remove("hidden");
+    const events=computeNotifications();
+    panel.innerHTML=events.length?events.map(e=>`<div class="notif-item">${e.text}<div class="notif-time">${new Date(e.time).toLocaleString()}</div></div>`).join(""):`<div class="notif-empty">Koi notification nahi 🙂</div>`;
+    localStorage.setItem("webteam_notif_read",new Date().toISOString());
+    renderNotifBadge();
+  }
+}
+document.addEventListener("click",function(e){const wrap=document.querySelector(".notif-wrap");if(wrap&&!wrap.contains(e.target))document.getElementById("notifPanel")?.classList.add("hidden")});
+function showLoginPopup(){
+  const readAt=localStorage.getItem("webteam_notif_read")||"1970-01-01";
+  const newMembers=state.members.filter(m=>new Date(m.created)>new Date(readAt));
+  const newClients=state.clients.filter(c=>new Date(c.created)>new Date(readAt));
+  if(!newMembers.length&&!newClients.length){renderNotifBadge();return}
+  const ov=document.createElement("div");ov.className="modal welcome-modal";
+  const colors=["#3157d5","#6b4ee8","#21c37a","#ffb020","#ff5c7c","#00b4d8"];
+  ov.innerHTML=`<div class="card welcome-card"><div class="confetti-wrap">${Array.from({length:14}).map(()=>`<span class="confetti" style="left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${(Math.random()*.6).toFixed(2)}s"></span>`).join("")}</div><div style="position:relative;z-index:1"><div class="welcome-emoji">🔔</div><h2>Naya Update!</h2>${newMembers.length?`<p style="text-align:left;font-weight:700;margin-bottom:6px">👤 Naye Members (${newMembers.length}):</p><ul>${newMembers.map(m=>`<li>${esc(m.name)} — ${esc(m.phone)}</li>`).join("")}</ul>`:""}${newClients.length?`<p style="text-align:left;font-weight:700;margin-bottom:6px">🧾 Naye Clients (${newClients.length}):</p><ul>${newClients.map(c=>`<li>${esc(c.name)} — ${money(c.amount)}</li>`).join("")}</ul>`:""}<button class="btn" onclick="this.closest('.welcome-modal').remove()">Dekh Liya ✅</button></div></div>`;
+  document.body.appendChild(ov);
+  localStorage.setItem("webteam_notif_read",new Date().toISOString());
+  renderNotifBadge();
+}
+function viewMemberDetail(mid){
+  const m=state.members.find(x=>x.id===mid);if(!m)return;
+  modal.classList.remove("hidden");
+  modalBody.innerHTML=`<h2>${esc(m.name)}</h2><div class="field"><label>📱 WhatsApp / Phone</label><input value="${esc(m.phone)}" readonly></div><div class="field"><label>✉️ Gmail / Email</label><input value="${esc(m.email)}" readonly></div><div class="field"><label>🔗 Referral Code</label><input value="${m.code}" readonly></div><div class="field"><label>📅 Joined</label><input value="${new Date(m.created).toLocaleString()}" readonly></div>${role==="admin"?`<button class="btn" onclick="closeModal();editMemberModal('${m.id}')">✏️ Edit Member</button>`:""}<button class="btn secondary" onclick="closeModal()">Close</button>`;
+}
+function showAuth(type){
+  document.getElementById("memberAuth").classList.toggle("hidden",type!=="member");
+  document.getElementById("adminAuth").classList.toggle("hidden",type!=="admin");
+  document.getElementById("memberTab").classList.toggle("active",type==="member");
+  document.getElementById("adminTab").classList.toggle("active",type==="admin");
+}
+function toggleRegister(){
+  document.getElementById("loginBox").classList.toggle("hidden");
+  document.getElementById("registerBox").classList.toggle("hidden");
+}
+function referralCode(name){return name.replace(/[^a-zA-Z]/g,"").slice(0,3).toUpperCase()+Math.floor(100+Math.random()*900)}
+function registerMember(){
+  if(!dataLoaded)return toast("Server se connect ho raha hai, thora ruk kar dobara try karein...");
+  const name=regName.value.trim(), email=regEmail.value.trim().toLowerCase(), phone=regPhone.value.trim(), pass=regPass.value, ref=regRef.value.trim().toUpperCase();
+  if(!name||!email||!phone||!pass)return toast("Please fill all required fields");
+  if(state.members.some(m=>m.email===email||m.phone===phone))return toast("Account already exists");
+  let referrer=state.members.find(m=>m.code===ref);
+  const m={id:id("MEM"),name,email,phone,pass,code:referralCode(name),referredBy:referrer?referrer.id:null,created:new Date().toISOString()};
+  state.members.push(m);save();current=m;role="member";saveSession();openMember();showWelcome(name);
+}
+function loginMember(){
+  if(!dataLoaded)return toast("Server se connect ho raha hai, thora ruk kar dobara try karein...");
+  const v=loginId.value.trim().toLowerCase(), p=loginPass.value;
+  const m=state.members.find(x=>(x.email===v||x.phone===v)&&x.pass===p);
+  if(!m)return toast("Invalid login details");
+  current=m;role="member";saveSession();openMember();
+}
+function loginAdmin(){
+  const v=adminCode.value;
+  if(v===ADMIN_CODE){role="admin";current={name:"Administrator"};saveSession();openAdmin();}
+  else if(v===VIEWER_CODE){role="viewer";current={name:"Viewer"};saveSession();openAdmin();}
+  else return toast("Invalid admin code");
+}
+function logout(){clearSession();current=null;role=null;if(demoTickerTimer){clearInterval(demoTickerTimer);demoTickerTimer=null}document.getElementById("memberApp").classList.add("hidden");document.getElementById("adminApp").classList.add("hidden");document.getElementById("auth").classList.remove("hidden")}
+function openMember(){document.getElementById("auth").classList.add("hidden");document.getElementById("adminApp").classList.add("hidden");document.getElementById("memberApp").classList.remove("hidden");memberNamePill.textContent=current.name;memberPage("home",document.querySelector("#memberApp .side button"));startDemoTicker()}
+let demoTickerTimer=null;
+function maskedPhone(){const p="03"+Math.floor(100000000+Math.random()*899999999).toString();return p.slice(0,2)+"*****"+p.slice(-1)}
+function demoTickerLine(){
+  const amounts=[1500,2000,2500,3000,3500,5000,7500,10000];
+  const amt=amounts[Math.floor(Math.random()*amounts.length)];
+  return `${maskedPhone()} received Rs. ${amt.toLocaleString()}`;
+}
+function startDemoTicker(){
+  const el=document.getElementById("demoTickerText");
+  if(!el)return;
+  if(demoTickerTimer)clearInterval(demoTickerTimer);
+  const tick=()=>{el.style.animation="none";void el.offsetWidth;el.style.animation="";el.textContent=demoTickerLine()};
+  tick();
+  demoTickerTimer=setInterval(tick,4000);
+}
+function openAdmin(){
+  document.getElementById("auth").classList.add("hidden");document.getElementById("memberApp").classList.add("hidden");document.getElementById("adminApp").classList.remove("hidden");
+  const pill=document.getElementById("adminPill"), botBtn=document.getElementById("adminBotBtn");
+  if(role==="admin"){pill.textContent="ADMIN";pill.classList.remove("pill-view");botBtn.classList.remove("hidden");}
+  else{pill.textContent="VIEW ONLY";pill.classList.add("pill-view");botBtn.classList.add("hidden");}
+  adminPage("home",document.querySelector("#adminApp .side button"));
+  renderNotifBadge();
+  if(role==="admin")showLoginPopup();
+}
+function memberClients(){return state.clients.filter(c=>c.addedBy===current.id)}
+function memberComms(){return state.commissions.filter(c=>c.memberId===current.id)}
+function memberPage(p,el){
+  currentMemberPage=p;
+  document.querySelectorAll("#memberApp .side button").forEach(b=>b.classList.remove("active")); if(el)el.classList.add("active");
+  const cs=memberClients(), cms=memberComms(), direct=cms.filter(c=>c.type==="direct").reduce((a,c)=>a+c.amount,0), ref=cms.filter(c=>c.type==="referral").reduce((a,c)=>a+c.amount,0), total=direct+ref;
+  let h="";
+  if(p==="home")h=`${memberVideoGuideSection()}<h1>Welcome, ${esc(current.name)} 👋</h1><div class="grid content">
+  <div class="card stat"><span>My Clients</span><strong>${cs.length}</strong></div><div class="card stat"><span>My Referrals</span><strong>${state.members.filter(m=>m.referredBy===current.id).length}</strong></div><div class="card stat"><span>Total Earned</span><strong>${money(total)}</strong></div><div class="card stat"><span>Pending</span><strong>${money(cms.filter(c=>c.status!=="PAID").reduce((a,c)=>a+c.amount,0))}</strong></div></div>
+  <div class="two content"><div class="ref"><h3>Your Referral Link</h3><code id="refLink">${location.href.split("#")[0]}?ref=${current.code}</code><button onclick="copyRef()">Copy Link</button></div><div class="card panel"><h3>Quick Add Client</h3><button class="btn" onclick="openClientModal()">➕ Add New Client</button></div></div>`;
+  if(p==="clients")h=`<h1>My Clients</h1><div class="card panel content"><button class="btn" style="width:auto" onclick="openClientModal()">+ Add Client</button><div class="table-wrap" style="margin-top:15px">${clientTable(cs)}</div></div>`;
+  if(p==="earnings")h=`<h1>My Earnings</h1><div class="grid content"><div class="card stat"><span>Direct 10%</span><strong>${money(direct)}</strong></div><div class="card stat"><span>Referral 5%</span><strong>${money(ref)}</strong></div><div class="card stat"><span>Total</span><strong>${money(total)}</strong></div><div class="card stat"><span>Paid</span><strong>${money(cms.filter(c=>c.status==="PAID").reduce((a,c)=>a+c.amount,0))}</strong></div></div><div class="card panel content">${commissionTable(cms)}</div>`;
+  if(p==="referrals"){const rs=state.members.filter(m=>m.referredBy===current.id);h=`<h1>My Referrals</h1><div class="card panel content"><div class="ref"><b>Your Code:</b> ${current.code}<code>${location.href.split("#")[0]}?ref=${current.code}</code><button onclick="copyRef()">Copy Link</button></div><div class="table-wrap" style="margin-top:18px">${memberTable(rs)}</div></div>`}
+  if(p==="bot")h=botHTML(false);
+  memberMain.innerHTML=h;
+}
+function adminPage(p,el){
+  currentAdminPage=p;
+  document.querySelectorAll("#adminApp .side button").forEach(b=>b.classList.remove("active"));if(el)el.classList.add("active");
+  let h="";
+  const sales=state.clients.filter(c=>c.status==="PAYMENT_RECEIVED"||c.status==="COMPLETED").reduce((a,c)=>a+Number(c.amount||0),0);
+  if(p==="home")h=`<h1>Admin Dashboard</h1><div class="grid content"><div class="card stat"><span>Members</span><strong>${state.members.length}</strong></div><div class="card stat"><span>Clients</span><strong>${state.clients.length}</strong></div><div class="card stat"><span>Total Sales</span><strong>${money(sales)}</strong></div><div class="card stat"><span>Pending Commission</span><strong>${money(state.commissions.filter(c=>c.status!=="PAID").reduce((a,c)=>a+c.amount,0))}</strong></div></div><div class="card panel content"><h3>Latest Clients</h3>${clientTable(state.clients.slice(-10).reverse(),true)}</div>`;
+  if(p==="members")h=`<h1>Members</h1><div class="card panel content">${memberTable(state.members,true)}</div>`;
+  if(p==="clients")h=`<h1>All Clients</h1><div class="card panel content">${role==="admin"?'<button class="btn" style="width:auto" onclick="openClientModal(true)">+ Add Client</button>':''}<div style="margin-top:15px">${clientTable(state.clients,true)}</div></div>`;
+  if(p==="payments")h=`<h1>Payments</h1><div class="card panel content">${role==="admin"?'<button class="btn" style="width:auto" onclick="openPaymentModal()">+ Record Payment</button>':''}<div class="table-wrap" style="margin-top:15px">${paymentTable()}</div></div>`;
+  if(p==="commissions")h=`<h1>Commissions</h1><div class="card panel content">${commissionTable(state.commissions,true)}</div>`;
+  if(p==="videos")h=`<h1>Guide Videos</h1><div class="card panel content">${role==="admin"?'<button class="btn" style="width:auto" onclick="openVideoModal()">+ Add Video</button>':'<p class="small">View-only mode: aap video add nahi kar saktay.</p>'}<div style="margin-top:18px">${adminVideoList()}</div></div>`;
+  if(p==="bot")h=role==="admin"?botHTML(true):`<h1>Admin Bot 🤖</h1><div class="card panel content"><p class="small">Bot sirf main admin ke liye available hai. Aap view-only mode mein hain.</p></div>`;
+  adminMain.innerHTML=h;
+  renderNotifBadge();
+}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function clientTable(arr,admin=false){if(!arr.length)return "<p class='small'>No clients yet.</p>";const canEdit=admin&&role==="admin";return `<div class="table-wrap"><table class="table"><tr><th>Client</th><th>Phone</th><th>Amount</th><th>Status</th><th>Added By</th>${canEdit?"<th>Action</th>":""}</tr>${arr.map(c=>`<tr><td><div class="name-row" style="cursor:default"><span class="avatar" style="background:${avatarColor(c.name)}">${esc(c.name).charAt(0).toUpperCase()}</span><span>${esc(c.name)}</span></div></td><td>${esc(c.phone)}</td><td>${money(c.amount)}</td><td><span class="badge ${c.status==="COMPLETED"?"green":c.status==="CANCELLED"?"red":"orange"}">${c.status}</span></td><td>${esc(state.members.find(m=>m.id===c.addedBy)?.name||"Admin")}</td>${canEdit?`<td><button class="btn secondary" style="width:auto;margin:0;padding:6px 10px;font-size:12px" onclick="editClientModal('${c.id}')">✏️ Edit</button></td>`:""}</tr>`).join("")}</table></div>`}
+function memberTable(arr,admin=false){if(!arr.length)return "<p class='small'>No referrals yet.</p>";const canEdit=admin&&role==="admin";return `<div class="table-wrap"><table class="table"><tr><th>Name</th><th>Phone</th><th>Referral Code</th><th>Joined</th>${canEdit?"<th>Action</th>":""}</tr>${arr.map(m=>`<tr><td><div class="name-row" onclick="viewMemberDetail('${m.id}')"><span class="avatar" style="background:${avatarColor(m.name)}">${esc(m.name).charAt(0).toUpperCase()}</span><span class="link-name">${esc(m.name)}</span></div></td><td>${esc(m.phone)}</td><td>${m.code}</td><td>${new Date(m.created).toLocaleDateString()}</td>${canEdit?`<td><button class="btn secondary" style="width:auto;margin:0;padding:6px 10px;font-size:12px" onclick="editMemberModal('${m.id}')">✏️ Edit</button></td>`:""}</tr>`).join("")}</table></div>`}
+function editClientModal(cid){const c=state.clients.find(x=>x.id===cid);if(!c)return;modal.classList.remove("hidden");modalBody.innerHTML=`<h2>Edit Client</h2><div class="field"><label>Client Name</label><input id="ecName" value="${esc(c.name)}"></div><div class="field"><label>WhatsApp / Phone</label><input id="ecPhone" value="${esc(c.phone)}"></div><div class="field"><label>Business</label><input id="ecBusiness" value="${esc(c.business||"")}"></div><div class="field"><label>Deal Amount</label><input id="ecAmount" type="number" value="${c.amount||0}"></div><div class="field"><label>Status</label><select id="ecStatus">${["NEW","CONTACTED","INTERESTED","DEAL_CONFIRMED","PAYMENT_RECEIVED","COMPLETED","CANCELLED"].map(s=>`<option ${s===c.status?"selected":""}>${s}</option>`).join("")}</select></div><button class="btn" onclick="saveClientEdit('${c.id}')">Save Changes</button><button class="btn secondary" onclick="closeModal()">Cancel</button>`}
+function saveClientEdit(cid){if(role!=="admin")return toast("View-only mode: aap edit nahi kar saktay");const c=state.clients.find(x=>x.id===cid);if(!c)return;c.name=ecName.value.trim()||c.name;c.phone=ecPhone.value.trim()||c.phone;c.business=ecBusiness.value.trim();c.amount=Number(ecAmount.value||0);c.status=ecStatus.value;save();closeModal();adminPage("clients");toast("Client updated")}
+function editMemberModal(mid){const m=state.members.find(x=>x.id===mid);if(!m)return;modal.classList.remove("hidden");modalBody.innerHTML=`<h2>Edit Member</h2><div class="field"><label>Full Name</label><input id="emName" value="${esc(m.name)}"></div><div class="field"><label>Email</label><input id="emEmail" value="${esc(m.email)}"></div><div class="field"><label>WhatsApp Number</label><input id="emPhone" value="${esc(m.phone)}"></div><button class="btn" onclick="saveMemberEdit('${m.id}')">Save Changes</button><button class="btn secondary" onclick="closeModal()">Cancel</button>`}
+function saveMemberEdit(mid){if(role!=="admin")return toast("View-only mode: aap edit nahi kar saktay");const m=state.members.find(x=>x.id===mid);if(!m)return;m.name=emName.value.trim()||m.name;m.email=emEmail.value.trim().toLowerCase()||m.email;m.phone=emPhone.value.trim()||m.phone;save();closeModal();adminPage("members");toast("Member updated")}
+function commissionTable(arr){if(!arr.length)return "<p class='small'>No commission records.</p>";return `<div class="table-wrap"><table class="table"><tr><th>Member</th><th>Client</th><th>Type</th><th>Amount</th><th>Status</th>${role==="admin"?"<th>Action</th>":""}</tr>${arr.map(c=>`<tr><td>${esc(state.members.find(m=>m.id===c.memberId)?.name)}</td><td>${esc(c.clientName)}</td><td>${c.type==="direct"?"10% Direct":"5% Referral"}</td><td>${money(c.amount)}</td><td><span class="badge ${c.status==="PAID"?"green":"orange"}">${c.status}</span></td>${role==="admin"?`<td>${c.status!=="PAID"?`<button onclick="markPaid('${c.id}')">Mark Paid</button>`:"✓"}</td>`:""}</tr>`).join("")}</table></div>`}
+function paymentTable(){if(!state.payments.length)return "<p class='small'>No payments recorded.</p>";return `<div class="table-wrap"><table class="table"><tr><th>Client</th><th>Amount</th><th>Date</th><th>Recorded By</th></tr>${state.payments.map(p=>`<tr><td>${esc(p.clientName)}</td><td>${money(p.amount)}</td><td>${new Date(p.date).toLocaleString()}</td><td>Admin</td></tr>`).join("")}</table></div>`}
+function openClientModal(admin=false){modal.classList.remove("hidden");modalBody.innerHTML=`<h2>Add Client</h2><div class="field"><label>Client Name</label><input id="cmName"></div><div class="field"><label>WhatsApp / Phone</label><input id="cmPhone"></div><div class="field"><label>Business</label><input id="cmBusiness" placeholder="Restaurant, Academy, Gym..."></div><div class="field"><label>Deal Amount</label><input id="cmAmount" type="number" value="0"></div><div class="field"><label>Status</label><select id="cmStatus"><option>NEW</option><option>CONTACTED</option><option>INTERESTED</option><option>DEAL_CONFIRMED</option><option>PAYMENT_RECEIVED</option><option>COMPLETED</option><option>CANCELLED</option></select></div><button class="btn" onclick="addClient(${admin})">Save Client</button><button class="btn secondary" onclick="closeModal()">Cancel</button>`}
+function addClient(admin){if(admin&&role!=="admin")return toast("View-only mode: aap client add nahi kar saktay");const n=cmName.value.trim(),ph=cmPhone.value.trim(),amount=Number(cmAmount.value||0);if(!n||!ph)return toast("Name and phone are required");if(state.clients.some(c=>c.phone===ph))return toast("This client already exists");const c={id:id("CLI"),name:n,phone:ph,business:cmBusiness.value,status:cmStatus.value,amount,addedBy:admin?null:current.id,created:new Date().toISOString()};state.clients.push(c);save();closeModal();admin?adminPage("clients"):memberPage("clients",document.querySelector("#memberApp .side button:nth-child(2)"));toast("Client added")}
+function openPaymentModal(){
+  if(!state.clients.length){
+    modal.classList.remove("hidden");
+    modalBody.innerHTML=`<h2>Record Payment</h2><p class="small">Abhi tak koi client add nahi hua. Payment record karne se pehle pehle ek client add karein.</p><button class="btn" onclick="closeModal();openClientModal(true)">+ Add Client</button><button class="btn secondary" onclick="closeModal()">Cancel</button>`;
+    return;
+  }
+  modal.classList.remove("hidden");modalBody.innerHTML=`<h2>Record Payment</h2><div class="field"><label>Client</label><select id="payClient">${state.clients.map(c=>`<option value="${c.id}">${esc(c.name)} — ${money(c.amount)}</option>`).join("")}</select></div><div class="field"><label>Payment Amount</label><input id="payAmount" type="number"></div><button class="btn" onclick="recordPayment()">Record & Generate Commission</button><button class="btn secondary" onclick="closeModal()">Cancel</button>`}
+function recordPayment(){if(role!=="admin")return toast("View-only mode: aap payment record nahi kar saktay");const c=state.clients.find(x=>x.id===payClient.value),amount=Number(payAmount.value||0);if(!c||amount<=0)return toast("Enter a valid payment");state.payments.push({id:id("PAY"),clientId:c.id,clientName:c.name,amount,date:new Date().toISOString()});c.status="PAYMENT_RECEIVED";c.amount=amount;
+if(c.addedBy){let seller=state.members.find(m=>m.id===c.addedBy);state.commissions.push({id:id("COM"),memberId:seller.id,clientName:c.name,type:"direct",amount:amount*.10,status:"PENDING"});if(seller.referredBy){let ref=state.members.find(m=>m.id===seller.referredBy);if(ref)state.commissions.push({id:id("COM"),memberId:ref.id,clientName:c.name,type:"referral",amount:amount*.05,status:"PENDING"})}}
+save();closeModal();adminPage("payments");toast("Payment recorded and commission generated");playMoneyRain()}
+function markPaid(cid){if(role!=="admin")return toast("View-only mode: aap edit nahi kar saktay");let c=state.commissions.find(x=>x.id===cid);if(c){c.status="PAID";c.paidAt=new Date().toISOString();save();adminPage("commissions");toast("Commission marked paid");playMoneyRain()}}
+function closeModal(){modal.classList.add("hidden")}
+function extractYoutubeId(url){
+  if(!url)return null;
+  const m=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/);
+  return m?m[1]:null;
+}
+function openVideoModal(){
+  if(role!=="admin")return toast("View-only mode: aap video add nahi kar saktay");
+  modal.classList.remove("hidden");
+  modalBody.innerHTML=`<h2>Add Guide Video</h2><div class="field"><label>YouTube Link</label><input id="vidUrl" placeholder="https://youtube.com/watch?v=..."></div><div class="field"><label>Title</label><input id="vidTitle" placeholder="e.g. How to add your first client"></div><div class="field"><label>Description</label><input id="vidDesc" placeholder="Short description..."></div><button class="btn" onclick="addVideo()">Save Video</button><button class="btn secondary" onclick="closeModal()">Cancel</button>`;
+}
+function addVideo(){
+  if(role!=="admin")return toast("View-only mode: aap video add nahi kar saktay");
+  const url=vidUrl.value.trim(),title=vidTitle.value.trim(),desc=vidDesc.value.trim();
+  const yid=extractYoutubeId(url);
+  if(!yid)return toast("Sahi YouTube link daalein");
+  if(!title)return toast("Title likhein");
+  state.videos.push({id:id("VID"),youtubeId:yid,url,title,desc,created:new Date().toISOString()});
+  save();closeModal();adminPage("videos");toast("Video add ho gayi");
+}
+function deleteVideo(vid){
+  if(role!=="admin")return toast("View-only mode: aap video delete nahi kar saktay");
+  state.videos=state.videos.filter(v=>v.id!==vid);save();adminPage("videos");toast("Video hata di gayi");
+}
+function adminVideoList(){
+  if(!state.videos.length)return "<p class='small'>Abhi koi video add nahi hui.</p>";
+  return `<div class="video-grid">`+state.videos.map(v=>`<div class="video-card"><div class="video-embed"><iframe src="https://www.youtube.com/embed/${esc(v.youtubeId)}" title="${esc(v.title)}" frameborder="0" allowfullscreen></iframe></div><div class="video-info"><h4>${esc(v.title)}</h4>${v.desc?`<p class="small">${esc(v.desc)}</p>`:""}${role==="admin"?`<button class="btn danger" style="width:auto;margin-top:8px;padding:6px 10px;font-size:12px" onclick="deleteVideo('${v.id}')">🗑 Delete</button>`:""}</div></div>`).join("")+`</div>`;
+}
+function memberVideoGuideSection(){
+  if(!state.videos.length)return "";
+  return `<div class="content"><h2 style="margin-bottom:12px">📈 More Ways to Earn</h2><div class="video-grid">`+state.videos.map(v=>`<div class="video-card"><div class="video-embed"><iframe src="https://www.youtube.com/embed/${esc(v.youtubeId)}" title="${esc(v.title)}" frameborder="0" allowfullscreen></iframe></div><div class="video-info"><h4>${esc(v.title)}</h4>${v.desc?`<p class="small">${esc(v.desc)}</p>`:""}</div></div>`).join("")+`</div></div>`;
+}
+function copyRef(){navigator.clipboard?.writeText(document.getElementById("refLink")?.textContent||location.href+"?ref="+current.code);toast("Referral link copied")}
+function botHTML(admin){return `<h1>${admin?"Admin Bot":"My Bot"} 🤖</h1><div class="card panel content chat"><div id="${admin?"adminMsgs":"memberMsgs"}" class="messages"><div class="msg bot">${admin?"Assalamualaikum Boss! 👋 Main WebTeam ka apna built-in assistant hoon (koi external AI nahi, sab data yahin se). Poochein — \"kitne members hain\", \"kitne clients hain\", \"Ali ka data do\", \"pending commission kitni hai\", \"sab members list karo\", ya bolein \"Ali ki payment ho gayi\" — main tik lga dunga.":"Assalamualaikum! 👋 Main aapka WebTeam guide bot hoon. Poochein: <b>kaise kaam karta hai</b>, <b>referral link</b>, <b>my clients</b>, <b>my earnings</b>, <b>my referrals</b>, ya <b>pending kitni hai</b>."}</div></div><div class="chatbar"><input id="${admin?"adminInput":"memberInput"}" placeholder="Type your question..." onkeydown="if(event.key==='Enter')sendBot(${admin})"><button onclick="sendBot(${admin})">Send</button></div></div>`}
+function pendingByMember(){const map={};state.commissions.filter(c=>c.status!=="PAID").forEach(c=>{map[c.memberId]=(map[c.memberId]||0)+c.amount});return Object.entries(map).map(([mid,amt])=>({member:state.members.find(m=>m.id===mid),amt})).filter(x=>x.member)}
+
+// ---- Built-in local bot (no external AI, sab jawab isi site ke data se) ----
+function memberGuideText(){
+  return `WebTeam mein kamane ka tareeqa bohat simple hai:<br>
+1️⃣ Apna <b>referral link</b> apne dost/family ko bhejein (yeh poochein: "referral link").<br>
+2️⃣ Jab wo sign up karte hain, wo aapke <b>referral</b> ban jate hain.<br>
+3️⃣ Aap khud bhi <b>clients add</b> kar ke unko website bana kar de saktay hain — "My Clients" section se.<br>
+4️⃣ Client ki payment receive hone par aapko <b>commission</b> milti hai — direct client se aur referral se dono.<br>
+5️⃣ Apni earnings "My Earnings" section mein ya yahan poochh kar dekh saktay hain.<br><br>
+Mujhse poochein: <b>referral link</b>, <b>my clients</b>, <b>my earnings</b>, <b>my referrals</b>, <b>pending kitni hai</b>.`;
+}
+function memberBotAnswer(q){
+  const d=buildMemberData();
+  const intents=[
+    {kws:["guide","kaise","kese","kaisay","help","kya karna","kya karu","shuru","kaam kese","tareeqa","tarika","how","how does","how to","use kese","website kese","system kese"],handler:()=>memberGuideText()},
+    {kws:["referral link","link do","apna link","share link","refer link","link chahiye","invite link","link bhejo","link kya hai"],handler:()=>`Aapka referral link ye hai:<br><code style="word-break:break-all">${esc(d.my_referral_link)}</code><br>Ye dost/family ko bhejein — jo bhi is se sign up karega wo aapka referral ban jayega.`},
+    {kws:["referral code","code do","my code","code kya hai","code chahiye"],handler:()=>`Aapka referral code hai: <b>${esc(d.my_referral_code)}</b>`},
+    {kws:["my client","clients kitne","kitne client","client list","clients dikhao","client kaun kaun","apne client"],handler:()=>{
+      if(!d.my_clients.length)return "Abhi tak aapne koi client add nahi kiya. \"My Clients\" section se add kar saktay hain.";
+      return `Aapke <b>${d.my_clients_count}</b> clients hain:<br>`+d.my_clients.map(c=>`• ${esc(c.name)} — ${money(c.amount)} <span class="badge">${esc(c.status)}</span>`).join("<br>");
+    }},
+    {kws:["pending","baqi","bache","abhi tak nahi mila","wait"],handler:()=>`Aapki pending commission: <b>${money(d.my_pending_commission)}</b>`},
+    {kws:["paid commission","mil chuki","paid ho chuki","mil gayi","de di"],handler:()=>`Ab tak aapko <b>${money(d.my_paid_commission)}</b> commission paid ho chuki hai.`},
+    {kws:["earning","kama","commission","total paisa","kitna mila","kitne paise","income","kamai","munafa","profit"],handler:()=>`Aapki total commission: <b>${money(d.my_total_commission)}</b><br>Pending: <b>${money(d.my_pending_commission)}</b><br>Paid: <b>${money(d.my_paid_commission)}</b>`},
+    {kws:["my referral","referrals kitne","kitne referral","referral kaun","refer kiya","meri team","downline"],handler:()=>{
+      if(!d.my_direct_referrals.length)return "Abhi tak aapka koi referral sign up nahi hua. Apna referral link share karein!";
+      return `Aapke <b>${d.my_direct_referrals_count}</b> direct referrals hain:<br>`+d.my_direct_referrals.map(n=>`• ${esc(n)}`).join("<br>");
+    }},
+    {kws:["mera naam","my name","naam kya"],handler:()=>`Aapka naam <b>${esc(d.my_name)}</b> hai.`},
+    {kws:["salam","assalam","hello","hi","hey","aoa"],handler:()=>`Walaikum assalam! 👋 Bataiye kya poochna hai — guide, referral link, my clients, my earnings, ya my referrals.`},
+    {kws:["shukriya","thanks","thank you","jazakallah"],handler:()=>`Khushamdeed! 🙌 Aur kuch poochna ho to bataiye.`},
+  ];
+  const match=bestIntent(q,intents);
+  if(match)return match();
+  return `Mujhe theek se samajh nahi aya, lekin ye poochh saktay hain: <b>guide</b>, <b>referral link</b>, <b>my clients</b>, <b>my earnings</b>, <b>my referrals</b>, <b>pending</b>.`;
+}
+function bestIntent(q,intents){
+  let best=null,bestScore=0;
+  for(const it of intents){
+    let score=0;
+    for(const k of it.kws){if(q.includes(k))score+=k.split(" ").length;}
+    if(score>bestScore){bestScore=score;best=it.handler;}
+  }
+  return best;
+}
+function findMemberInQuery(q){return state.members.find(m=>q.includes(m.name.toLowerCase()))}
+function findClientInQuery(q){return state.clients.find(c=>q.includes(c.name.toLowerCase()))}
+function adminGuideText(){
+  return `Main admin data assistant hoon. Kuch bhi poochh saktay hain:<br>
+• <b>kitne members hain</b> / <b>kitne clients hain</b><br>
+• <b>total sales</b> / <b>total commission</b> / <b>pending commission</b><br>
+• <b>sab members list karo</b> / <b>sab clients list karo</b><br>
+• kisi bhi <b>member ka naam</b> likh kar us ka pura data, number, uske clients, referral (jaise "Ali ka number do", "Ali ke clients")<br>
+• kisi bhi <b>client ka naam</b> likh kar pata karein wo kis member ne add kiya (jaise "Falana client kisne diya")<br>
+• <b>"Ali ki payment ho gayi"</b> ya <b>"mark paid Ali"</b> — commission paid mark karne ke liye`;
+}
+function adminBotAnswer(q){
+  const d=buildAdminData();
+  const member=findMemberInQuery(q);
+  const clientMatch=findClientInQuery(q);
+
+  // Client-specific lookup: "X client kisne diya", "X ka referral kaun hai", or a client name matched and no member name matched
+  const clientIntentWords=["kis ne diya","kisne diya","kis ne add","kaun laya","kis ka referral","referral kaun","added by","kis member ne","kisne bheja"];
+  const wantsClientLookup=clientMatch&&(!member||clientIntentWords.some(k=>q.includes(k)));
+  if(wantsClientLookup){
+    const addedBy=state.members.find(m=>m.id===clientMatch.addedBy);
+    return `<b>${esc(clientMatch.name)}</b> client hai.<br>Amount: ${money(clientMatch.amount)}<br>Status: <span class="badge">${esc(clientMatch.status)}</span><br>Ye client <b>${addedBy?esc(addedBy.name):"Admin"}</b> ne add kiya tha.`;
+  }
+
+  if(member){
+    const md=d.members.find(m=>m.name===member.name);
+    if(md){
+      // Quick number/phone-only answer
+      if(/number|phone|contact|whatsapp|mobile/.test(q))return `${esc(md.name)} ka number hai: <b>${esc(md.phone)}</b>`;
+      // Quick "kis client ne diya" / clients-only answer for this member
+      if(/client\s*(kis|kaun|de|diya|list)|kitne\s*client|clients?\s*ka(un|is)/.test(q)){
+        if(!md.clients_added.length)return `${esc(md.name)} ne abhi tak koi client add nahi kiya.`;
+        return `<b>${esc(md.name)}</b> ne <b>${md.clients_added_count}</b> clients diye hain:<br>`+md.clients_added.map(c=>`• ${esc(c.name)} — ${money(c.amount)} <span class="badge">${esc(c.status)}</span>`).join("<br>");
+      }
+      // Quick referral-only answer
+      if(/refer/.test(q)&&!/commission|earning/.test(q))return `${esc(md.name)} ko refer kiya: <b>${esc(md.referred_by)}</b> ne.<br>${esc(md.name)} ke apne direct referrals: <b>${md.direct_referrals_count}</b>${md.direct_referrals.length?" ("+md.direct_referrals.map(esc).join(", ")+")":""}`;
+      const clientsList=md.clients_added.length?md.clients_added.map(c=>`• ${esc(c.name)} — ${money(c.amount)} <span class="badge">${esc(c.status)}</span>`).join("<br>"):"Koi client add nahi kiya.";
+      return `<b>${esc(md.name)}</b><br>Phone: ${esc(md.phone)}<br>Referred by: ${esc(md.referred_by)}<br>Referral code: ${esc(md.referral_code)}<br>Clients added (${md.clients_added_count}):<br>${clientsList}<br>Direct referrals: <b>${md.direct_referrals_count}</b>${md.direct_referrals.length?" ("+md.direct_referrals.map(esc).join(", ")+")":""}<br>Total commission: <b>${money(md.total_commission_earned)}</b><br>Pending commission: <b>${money(md.pending_commission)}</b>`;
+    }
+  }
+  const intents=[
+    {kws:["guide","help","kya poochh","kya kar sakta","kya kar sakti","options"],handler:()=>adminGuideText()},
+    {kws:["kitne member","total member","members kitne","member count","kul member"],handler:()=>`Total members: <b>${d.totals.members}</b>`},
+    {kws:["kitne client","total client","clients kitne","client count","kul client"],handler:()=>`Total clients: <b>${d.totals.clients}</b>`},
+    {kws:["total sale","sales kitni","sale kitni","kul sale","revenue"],handler:()=>`Total sales: <b>${money(d.totals.total_sales)}</b>`},
+    {kws:["pending commission","pending kitni","baqi commission","kitni baqi"],handler:()=>{
+      const p=pendingByMember();
+      if(!p.length)return "Koi pending commission nahi hai.";
+      return `Total pending commission: <b>${money(d.totals.total_commission_pending)}</b><br>`+p.map(x=>`• ${esc(x.member.name)} — ${money(x.amt)}`).join("<br>");
+    }},
+    {kws:["paid commission","commission paid","kitni paid","de di commission"],handler:()=>`Total paid commission: <b>${money(d.totals.total_commission_paid)}</b>`},
+    {kws:["sab member","all member","members list","member list","poori list members","sare member"],handler:()=>{
+      if(!d.members.length)return "Abhi koi member nahi hai.";
+      return `Total <b>${d.members.length}</b> members:<br>`+d.members.map(m=>`• ${esc(m.name)} — ${esc(m.phone)}`).join("<br>");
+    }},
+    {kws:["sab client","all client","clients list","client list","poori list clients","sare client"],handler:()=>{
+      if(!d.clients.length)return "Abhi koi client nahi hai.";
+      return `Total <b>${d.clients.length}</b> clients:<br>`+d.clients.map(c=>`• ${esc(c.name)} — ${money(c.amount)} <span class="badge">${esc(c.status)}</span>`).join("<br>");
+    }},
+    {kws:["salam","assalam","hello","hi","hey","aoa"],handler:()=>`Walaikum assalam Boss! 👋 Bataiye kya data chahiye.`},
+    {kws:["shukriya","thanks","thank you","jazakallah"],handler:()=>`Khushamdeed Boss! 🙌 Aur kuch chahiye ho to bataiye.`},
+  ];
+  const match=bestIntent(q,intents);
+  if(match)return match();
+  return `Mujhe theek se samajh nahi aya. ${adminGuideText()}`;
+}
+// Full-access data snapshot — used by adminBotAnswer
+function buildAdminData(){
+  const members=state.members.map(m=>{
+    const referrer=state.members.find(r=>r.id===m.referredBy);
+    const myClients=state.clients.filter(c=>c.addedBy===m.id);
+    const myComms=state.commissions.filter(c=>c.memberId===m.id);
+    const myReferrals=state.members.filter(r=>r.referredBy===m.id);
+    return{name:m.name,phone:m.phone,email:m.email,referral_code:m.code,joined:m.created,
+      referred_by:referrer?referrer.name:"None (direct signup)",
+      clients_added_count:myClients.length,
+      clients_added:myClients.map(c=>({name:c.name,amount:c.amount,status:c.status})),
+      direct_referrals_count:myReferrals.length,
+      direct_referrals:myReferrals.map(r=>r.name),
+      total_commission_earned:myComms.reduce((a,c)=>a+c.amount,0),
+      pending_commission:myComms.filter(c=>c.status!=="PAID").reduce((a,c)=>a+c.amount,0)};
+  });
+  return{today:new Date().toISOString(),
+    totals:{members:state.members.length,clients:state.clients.length,
+      total_sales:state.clients.filter(c=>c.status==="PAYMENT_RECEIVED"||c.status==="COMPLETED").reduce((a,c)=>a+Number(c.amount||0),0),
+      total_commission_pending:state.commissions.filter(c=>c.status!=="PAID").reduce((a,c)=>a+c.amount,0),
+      total_commission_paid:state.commissions.filter(c=>c.status==="PAID").reduce((a,c)=>a+c.amount,0)},
+    members,
+    clients:state.clients.map(c=>({name:c.name,phone:c.phone,business:c.business,amount:c.amount,status:c.status,added_by:state.members.find(m=>m.id===c.addedBy)?.name||"Admin",created:c.created})),
+    payments:state.payments.map(p=>({client:p.clientName,amount:p.amount,date:p.date})),
+    commissions:state.commissions.map(c=>({member:state.members.find(m=>m.id===c.memberId)?.name,client:c.clientName,type:c.type,amount:c.amount,status:c.status}))};
+}
+// Restricted data snapshot — ONLY this member's own info, never other members'
+function buildMemberData(){
+  const cs=memberClients(),cms=memberComms();
+  return{today:new Date().toISOString(),
+    my_name:current.name,my_referral_code:current.code,
+    my_referral_link:location.href.split("#")[0]+"?ref="+current.code,
+    my_clients_count:cs.length,
+    my_clients:cs.map(c=>({name:c.name,amount:c.amount,status:c.status})),
+    my_direct_referrals_count:state.members.filter(m=>m.referredBy===current.id).length,
+    my_direct_referrals:state.members.filter(m=>m.referredBy===current.id).map(m=>m.name),
+    my_total_commission:cms.reduce((a,c)=>a+c.amount,0),
+    my_pending_commission:cms.filter(c=>c.status!=="PAID").reduce((a,c)=>a+c.amount,0),
+    my_paid_commission:cms.filter(c=>c.status==="PAID").reduce((a,c)=>a+c.amount,0),
+    my_commission_breakdown:cms.map(c=>({client:c.clientName,type:c.type,amount:c.amount,status:c.status}))};
+}
+function sendBot(admin){
+  if(admin&&role!=="admin")return;
+  const input=document.getElementById(admin?"adminInput":"memberInput"),box=document.getElementById(admin?"adminMsgs":"memberMsgs"),qRaw=input.value.trim(),q=qRaw.toLowerCase();
+  if(!q)return;box.innerHTML+=`<div class="msg me">${esc(qRaw)}</div>`;box.scrollTop=box.scrollHeight;input.value="";
+
+  if(admin){
+    // Deterministic fast-path for money-changing actions
+    const pending=pendingByMember();
+    if(/mark\s*paid|paid\s*kr|ho\s*ga(y|ee|i)|tik\s*(lga|laga)|clear\s*kr|payment\s*ho\s*g/.test(q)){
+      const matched=pending.filter(x=>q.includes(x.member.name.toLowerCase()));
+      let ans;
+      if(!matched.length){
+        ans="Mujhe member ka naam samajh nahi aya. Aise likhein: <b>\"Ali ki payment ho gayi\"</b> ya <b>\"mark paid Ali\"</b>.";
+      }else{
+        matched.forEach(mt=>{state.commissions.filter(c=>c.memberId===mt.member.id&&c.status!=="PAID").forEach(c=>{c.status="PAID";c.paidAt=new Date().toISOString()})});
+        save();
+        ans=matched.map(mt=>`✅ ${esc(mt.member.name)} ki <b>${money(mt.amt)}</b> payment PAID mark kar di gayi hai.`).join("<br>");
+        playMoneyRain();
+        if(document.querySelector("#adminApp .side button.active")?.textContent.includes("Commissions"))adminPage("commissions");
+      }
+      box.innerHTML+=`<div class="msg bot">${ans}</div>`;box.scrollTop=box.scrollHeight;return;
+    }
+  }
+
+  const ans=admin?adminBotAnswer(q):memberBotAnswer(q);
+  box.innerHTML+=`<div class="msg bot">${ans}</div>`;
+  box.scrollTop=box.scrollHeight;
+}
+const params=new URLSearchParams(location.search);if(params.get("ref"))document.getElementById("regRef").value=params.get("ref").toUpperCase();
+</script>
+</body>
+</html>
